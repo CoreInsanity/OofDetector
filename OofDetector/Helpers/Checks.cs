@@ -22,15 +22,6 @@ namespace OofDetector.Helpers
 
             return cardFound;
         }
-        public static void PrepHighlightDir(string highlightPath) //Throws FileNotFoundException
-        {
-            if (!Directory.Exists(highlightPath)) Directory.CreateDirectory(highlightPath);
-            else if (Directory.GetFiles(highlightPath).Length > 0)
-            {
-                Directory.Delete(highlightPath);
-                Directory.CreateDirectory(highlightPath);
-            }
-        }
         public static void PrepTarkovConfig(string confPath) //Throws FileNotFoundException
         {
             if (!File.Exists(confPath)) throw new FileNotFoundException();

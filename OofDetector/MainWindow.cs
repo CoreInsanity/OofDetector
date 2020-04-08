@@ -15,11 +15,9 @@ namespace OofDetector
     public partial class Main : Form
     {
         private static string NvidiaSDKPath;
-        private static string HighlightPath;
         private static string TarkovConfigPath;
         private static string SelfProcName;
         private static Helpers.Audio Audio;
-        private static FileSystemWatcher LogWatcher;
         private static int SessionKills;
 
         public Main()
@@ -32,7 +30,6 @@ namespace OofDetector
         {
             SelfProcName = "OOFDetector " + new Random().Next(0, 999999999);
             SessionKills = 0;
-            HighlightPath = Path.Combine(Path.GetTempPath(), @"Highlights/Escape From Tarkov");
             TarkovConfigPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Escape from Tarkov/shared.ini");
             NvidiaSDKPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "nvidia corporation/gfesdk");
 
@@ -43,7 +40,6 @@ namespace OofDetector
             }
             try
             {
-                Helpers.Checks.PrepHighlightDir(HighlightPath);
                 Helpers.Checks.PrepTarkovConfig(TarkovConfigPath);
             }
             catch (Exception ex)
@@ -102,51 +98,57 @@ namespace OofDetector
             notification.Visible = true;
             this.Invoke(new Action(() => this.Hide()));
         }
-
         private void TarkovProcessListener()
         {
             bool isRunning = false;
             var activityListenerThread = new Thread(new ThreadStart(HighlightActivityListener));
             while (true)
             {
-                var proc = Process.GetProcessesByName(ConfigurationSettings.AppSettings["eftProcName"]);
-                if (proc.Length > 0)
+                try
                 {
-                    if (!isRunning)
+                    var proc = Process.GetProcessesByName(ConfigurationSettings.AppSettings["eftProcName"]);
+                    if (proc.Length > 0)
                     {
-                        processData.Invoke(new Action(() => processData.Items.Add(String.Format("{0} - Tarkov instance opened, starting listener", DateTime.Now.ToString("hh:mm:ss")))));
-                        isRunning = true;
-                        SetActive();
-                        Audio.PlayAudio(Helpers.AudioSelect.WAKEUP);
-                        activityListenerThread.Start();
+                        if (!isRunning)
+                        {
+                            processData.Invoke(new Action(() => processData.Items.Add(String.Format("{0} - Tarkov instance opened, starting listener", DateTime.Now.ToString("hh:mm:ss")))));
+                            isRunning = true;
+                            SetActive();
+                            Audio.PlayAudio(Helpers.AudioSelect.WAKEUP);
+                            activityListenerThread.Start();
+                        }
                     }
+                    else
+                    {
+                        if (isRunning)
+                        {
+                            processData.Invoke(new Action(() => processData.Items.Add(String.Format("{0} - Tarkov instance closed, stopping listener", DateTime.Now.ToString("hh:mm:ss")))));
+                            SessionKills = 0;
+                            activityListenerThread.Abort();
+                            SetInactive();
+                            HideForm();
+                        }
+                        isRunning = false;
+                    }
+                    Thread.Sleep(10000);
                 }
-                else
+                catch (Exception ex)
                 {
-                    if (isRunning)
-                    {
-                        processData.Invoke(new Action(() => processData.Items.Add(String.Format("{0} - Tarkov instance closed, stopping listener", DateTime.Now.ToString("hh:mm:ss")))));
-                        LogWatcher.EnableRaisingEvents = false;
-                        SessionKills = 0;
-                        LogWatcher = new FileSystemWatcher();
-                        activityListenerThread.Abort();
-                        SetInactive();
-                        HideForm();
-                    }
-                    isRunning = false;
+                    gameData.Invoke(new Action(() => gameData.Items.Add(ex.Message)));
                 }
-                Thread.Sleep(10000);
             }
         }
 
         private void HighlightActivityListener()
         {
-            Thread.Sleep(25000);
+            //Wait for the logfile to be created
+            Thread.Sleep(30000);
 
+            //Get the latest logfile
             FileInfo[] files = new DirectoryInfo(NvidiaSDKPath).GetFiles("*.log");
             var log = files.Where(f => f.Name.ToLower().Contains("tarkov")).OrderByDescending(f => f.LastWriteTime).First();
 
-            processData.Invoke(new Action(() => processData.Items.Add(String.Format("{0} - Listening for activities in {1}", DateTime.Now.ToString("hh:mm:ss"), log.Name))));
+            processData.Invoke(new Action(() => processData.Items.Add(String.Format("{0} - Hooked to {1}", DateTime.Now.ToString("hh:mm:ss"), log.Name))));
 
             long lastKnownFileSize = 0;
             while (true)
@@ -178,7 +180,7 @@ namespace OofDetector
                     }
                     SessionKills = killsInLog;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     gameData.Invoke(new Action(() => gameData.Items.Add(ex.Message)));
                     Thread.Sleep(500);
