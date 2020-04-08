@@ -115,6 +115,7 @@ namespace OofDetector
                             isRunning = true;
                             SetActive();
                             Audio.PlayAudio(Helpers.AudioSelect.WAKEUP);
+                            activityListenerThread = new Thread(new ThreadStart(HighlightActivityListener));
                             activityListenerThread.Start();
                         }
                     }
