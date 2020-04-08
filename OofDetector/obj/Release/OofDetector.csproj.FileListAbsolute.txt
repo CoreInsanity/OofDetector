@@ -1,0 +1,12 @@
+C:\Users\maxim\source\repos\OofDetector\OofDetector\bin\Release\OofDetector.exe.config
+C:\Users\maxim\source\repos\OofDetector\OofDetector\bin\Release\OofDetector.exe
+C:\Users\maxim\source\repos\OofDetector\OofDetector\bin\Release\OofDetector.pdb
+C:\Users\maxim\source\repos\OofDetector\OofDetector\bin\Release\Newtonsoft.Json.dll
+C:\Users\maxim\source\repos\OofDetector\OofDetector\bin\Release\Newtonsoft.Json.xml
+C:\Users\maxim\source\repos\OofDetector\OofDetector\obj\Release\OofDetector.csprojAssemblyReference.cache
+C:\Users\maxim\source\repos\OofDetector\OofDetector\obj\Release\OofDetector.Main.resources
+C:\Users\maxim\source\repos\OofDetector\OofDetector\obj\Release\OofDetector.Properties.Resources.resources
+C:\Users\maxim\source\repos\OofDetector\OofDetector\obj\Release\OofDetector.csproj.GenerateResource.cache
+C:\Users\maxim\source\repos\OofDetector\OofDetector\obj\Release\OofDetector.csproj.CopyComplete
+C:\Users\maxim\source\repos\OofDetector\OofDetector\obj\Release\OofDetector.exe
+C:\Users\maxim\source\repos\OofDetector\OofDetector\obj\Release\OofDetector.pdb
